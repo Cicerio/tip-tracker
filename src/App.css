@@ -4,4 +4,14 @@
   padding: 2rem;
   text-align: center;
 }
+#input{
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items:right;
+}
 
+#selectBox{
+  display:flex;
+  flex-direction: column;
+}
