@@ -5,10 +5,12 @@ import PropTypes from 'prop-types'
 
 import { Button, ButtonGroup } from '@mui/material'
 import TipGrid from './Components/TipGrid'
-import {TextField} from '@mui/material'
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
@@ -35,45 +37,58 @@ function App() {
     [prefersDarkMode],
   );
   
-  const [deliveryCount, setDeliveryCount] = useState(0)
-  const [tipType, setTipType] = useState('credit')
-  const tips = [
+  const [deliveryCount, setDeliveryCount] = useState(5);
+  const [tipCash, setTipCash] = useState(0);
+  const [tipCredit, setTipCredit] = useState(0);
+  const [tipsArray, setTipsArray] = useState([
     { id: 1, cash: 0, credit: 1.25 },
     { id: 2, cash: 0, credit: 5 },
     { id: 3, cash: 0, credit: 20.15 },
     { id: 4, cash: 2, credit: 17.89 },
     { id: 5, cash: 5, credit: 25 }
-  ];
-  const [tipsArray, setTipsArray] = useState(tips)
-
+  ]);
   const columns = [
     { field: 'id', headerName: "Delivery", width: 80 },
-    { field: 'cash', headerName: 'Cash', width: 150 },
-    { field: 'credit', headerName: 'Credit', width: 150 },
+    { field: 'cash', headerName: 'Cash', width: 130 },
+    { field: 'credit', headerName: 'Credit', width: 130  },
   ];
-  const handleChange = (event) => {
-    setTipType(event.target.value);
+
+  const handleCashChange = (e) => {
+    setTipCash(e.target.value);
   };
+  const handleCreditChange = (e) => {
+    setTipCredit(e.target.value);
+  };
+const handleClearFile = () =>{
+  setTipsArray([])
+  setDeliveryCount(0)
+}
+
   /**
    * Adds a tip to the given array based on the tip type and amount.
    *
-   * @param {string} tipType - The type of the tip ('cash' or 'credit').
-   * @param {number} tipAmt - The amount of the tip.
-   * @param {Array} array - The array to which the tip will be added.
+   * @param {number} cashTip - The amount tipped in cash.
+   * @param {number} creditTip - The amount tipped in credit.
    * @return {void} This function does not return a value.
    */
-  const addTip = (tipType, tipAmt, array) =>{
-    array.push({ 
-      id: deliveryCount, 
-      cash:   tipType === 'cash'   ? tipAmt : 0,
-      credit: tipType === 'credit' ? 0 : tipAmt 
-    });
-    setDeliveryCount()
+  const addTip = (cashTip, creditTip) =>{
+
+    const newTip ={ 
+      id: deliveryCount + 1 , 
+      cash:   cashTip ? cashTip : 0,
+      credit: creditTip ? creditTip : 0 ,
+    };
+    setTipsArray(tipsArray => [...tipsArray, newTip])
+    setDeliveryCount(deliveryCount + 1);
   }
   const removeTip = (newCount, array) => {
-    const newTips = array.filter((_, index) => index !== tipsArray.length - 1);
-    setTipsArray(newTips);
-    setDeliveryCount(newCount - 1);
+    if (tipsArray.length === 0){
+      return
+    }else{
+      const newTips = array.filter((_, index) => index !== tipsArray.length - 1);
+      setTipsArray(newTips);
+      setDeliveryCount(newCount - 1);
+    }
   }
 
   return (
@@ -83,27 +98,35 @@ function App() {
         <ButtonGroup variant='contained' aria-label="Basic button group">
           <Button>Load file</Button>
           <Button>Save file</Button>
-          <Button onClick={() => setTipsArray([])}>Clear file</Button>
+          <Button onClick={() => handleClearFile()}>Clear file</Button>
         </ButtonGroup>
         <TipGrid rows={tipsArray} columns={columns} />
         <section id='input' >
-          <TextField id="outlined-basic" label="Tip Amount" variant="outlined"/>
-          <div id='selectBox'>
-            {/* <InputLabel id="demo-simple-select-label">Tip Type</InputLabel> */}
-            <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={tipType}
-                label="Tip Type"
-                onChange={handleChange}
-              >
-                  <MenuItem value={'cash'}>Cash</MenuItem>
-                  <MenuItem value={'credit'}>Credit</MenuItem>
-            </Select>
-          </div>
+        <FormControl fullWidth sx={{ m: 1 }}>
+          <InputLabel htmlFor="outlined-input-cash">Cash</InputLabel>
+          <OutlinedInput
+            id="outlined-input-cash"
+            startAdornment={<InputAdornment position="start">$</InputAdornment>}
+            label="Cash"
+            type="number"
+            value={tipCash}
+            onChange={handleCashChange}
+          />
+        </FormControl>
+        <FormControl fullWidth sx={{ m: 1 }}>
+          <InputLabel htmlFor="outlined-input-credit">Credit</InputLabel>
+          <OutlinedInput
+            id="outlined-input-credit"
+            startAdornment={<InputAdornment position="start">$</InputAdornment>}
+            label="Credit"
+            type="number"
+            value={tipCredit}
+            onChange={handleCreditChange}
+          />
+        </FormControl>
         </section>
         <ButtonGroup aria-label="Basic button group">
-          <Button >Apply</Button>
+          <Button onClick={() => addTip(tipCash, tipCredit)}>Apply</Button>
           <Button onClick={() => removeTip(deliveryCount, tipsArray)}>Undo Last</Button>
         </ButtonGroup>
       </main>
