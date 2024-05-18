@@ -100,30 +100,31 @@ const handleClearFile = () =>{
           <Button>Save file</Button>
           <Button onClick={() => handleClearFile()}>Clear file</Button>
         </ButtonGroup>
+        {/* Tip grid */}
         <TipGrid rows={tipsArray} columns={columns} />
         <section id='input' >
-        <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="outlined-input-cash">Cash</InputLabel>
-          <OutlinedInput
-            id="outlined-input-cash"
-            startAdornment={<InputAdornment position="start">$</InputAdornment>}
-            label="Cash"
-            type="number"
-            value={tipCash}
-            onChange={handleCashChange}
-          />
-        </FormControl>
-        <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="outlined-input-credit">Credit</InputLabel>
-          <OutlinedInput
-            id="outlined-input-credit"
-            startAdornment={<InputAdornment position="start">$</InputAdornment>}
-            label="Credit"
-            type="number"
-            value={tipCredit}
-            onChange={handleCreditChange}
-          />
-        </FormControl>
+          <FormControl fullWidth sx={{ m: 1 }}>
+            <InputLabel htmlFor="outlined-input-cash">Cash</InputLabel>
+            <OutlinedInput
+              id="outlined-input-cash"
+              startAdornment={<InputAdornment position="start">$</InputAdornment>}
+              label="Cash"
+              type="number"
+              value={tipCash}
+              onChange={handleCashChange}
+            />
+          </FormControl>
+          <FormControl fullWidth sx={{ m: 1 }}>
+            <InputLabel htmlFor="outlined-input-credit">Credit</InputLabel>
+            <OutlinedInput
+              id="outlined-input-credit"
+              startAdornment={<InputAdornment position="start">$</InputAdornment>}
+              label="Credit"
+              type="number"
+              value={tipCredit}
+              onChange={handleCreditChange}
+            />
+          </FormControl>
         </section>
         <ButtonGroup aria-label="Basic button group">
           <Button onClick={() => addTip(tipCash, tipCredit)}>Apply</Button>
