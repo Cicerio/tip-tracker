@@ -14,3 +14,7 @@ Also Node Version Manager 1.1.11.
 ### Installation
 
 Use this command to install relevant packages: `npm i`
+
+## Features to be implemented:
+  * Redo button / memory array
+  * File saving

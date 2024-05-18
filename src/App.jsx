@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react'
+import { useEffect } from 'react';
 import './App.css'
-import PropTypes from 'prop-types'
 
 import { Button, ButtonGroup } from '@mui/material'
 import TipGrid from './Components/TipGrid'
@@ -11,21 +11,19 @@ import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 
-  /**
-   * The Plan:
-   * 
-   * Tip tracker. 
-   *    Log in.
-   *    Display main page
-   *      Button for new save file, or load previous.
-   *      
-   * Maybe make the array a custom Component?
-   */
+
+/**
+ * The Plan:
+ * 
+ * Things to add:
+ * Manditory login screen (REACT ROUTER)
+ * File saving (Maybe if I have time)
+ */
 
 function App() {
+
+  //Converts light to dark mode depending on system preference
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = React.useMemo(
     () =>
@@ -36,10 +34,12 @@ function App() {
       }),
     [prefersDarkMode],
   );
-  
+//states
   const [deliveryCount, setDeliveryCount] = useState(5);
   const [tipCash, setTipCash] = useState(0);
   const [tipCredit, setTipCredit] = useState(0);
+  const [cashBuffer, setCashBuffer] = useState('');
+  const [creditBuffer, setCreditBuffer] = useState('');
   const [tipsArray, setTipsArray] = useState([
     { id: 1, cash: 0, credit: 1.25 },
     { id: 2, cash: 0, credit: 5 },
@@ -48,22 +48,41 @@ function App() {
     { id: 5, cash: 5, credit: 25 }
   ]);
   const columns = [
-    { field: 'id', headerName: "Delivery", width: 80 },
-    { field: 'cash', headerName: 'Cash', width: 130 },
-    { field: 'credit', headerName: 'Credit', width: 130  },
+    { field: 'id', headerName: "Drive", width: 100 },
+    { field: 'cash', headerName: 'Cash', width: 170 },
+    { field: 'credit', headerName: 'Credit', width: 170 },
   ];
+// Event handlers for the Buttons.
 
-  const handleCashChange = (e) => {
-    setTipCash(e.target.value);
-  };
-  const handleCreditChange = (e) => {
-    setTipCredit(e.target.value);
-  };
-const handleClearFile = () =>{
-  setTipsArray([])
-  setDeliveryCount(0)
-}
+const handleCashChange = (e) => {
+  setCashBuffer(e.target.value);
+  console.log(cashBuffer)
+};
 
+const handleCreditChange = (e) => {
+  setCreditBuffer(e.target.value);
+  console.log(creditBuffer);
+};
+/**
+ * Side effect where the tip float states are updated when the buffers are.
+ *    Buffers are the string values of the Inputs, 
+ *    and what display in the OutlineInputs.
+ */
+useEffect(() => {
+  setTipCash(cashBuffer ? parseFloat(cashBuffer) : 0);
+  setTipCredit(creditBuffer ? parseFloat(creditBuffer) : 0);
+}, [cashBuffer, creditBuffer]);
+const handleApplyClick = () => {
+  console.log(tipCash + "" + tipCredit)
+  addTip(tipCash, tipCredit)
+  setCashBuffer('');
+  setCreditBuffer('');
+};
+  const handleClearFile = () => {
+    setTipsArray([])
+    setDeliveryCount(0)
+  }
+  
   /**
    * Adds a tip to the given array based on the tip type and amount.
    *
@@ -71,20 +90,27 @@ const handleClearFile = () =>{
    * @param {number} creditTip - The amount tipped in credit.
    * @return {void} This function does not return a value.
    */
-  const addTip = (cashTip, creditTip) =>{
+  const addTip = (cashTip, creditTip) => {
 
-    const newTip ={ 
-      id: deliveryCount + 1 , 
-      cash:   cashTip ? cashTip : 0,
-      credit: creditTip ? creditTip : 0 ,
+    const newTip = {
+      id: deliveryCount + 1,
+      cash: cashTip ? cashTip : 0,
+      credit: creditTip ? creditTip : 0,
     };
     setTipsArray(tipsArray => [...tipsArray, newTip])
     setDeliveryCount(deliveryCount + 1);
   }
+  /**
+   * Removes the last tip from the given array and updates the delivery count.
+   *
+   * @param {number} newCount - The new delivery count.
+   * @param {Array} array - The array of tips.
+   * @return {void} This function does not return a value.
+   */
   const removeTip = (newCount, array) => {
-    if (tipsArray.length === 0){
+    if (tipsArray.length === 0) {
       return
-    }else{
+    } else {
       const newTips = array.filter((_, index) => index !== tipsArray.length - 1);
       setTipsArray(newTips);
       setDeliveryCount(newCount - 1);
@@ -92,7 +118,7 @@ const handleClearFile = () =>{
   }
 
   return (
-    <ThemeProvider theme = {theme}>
+    <ThemeProvider theme={theme}>
       <main>
         <h2>Tip Tracker</h2>
         <ButtonGroup variant='contained' aria-label="Basic button group">
@@ -101,8 +127,8 @@ const handleClearFile = () =>{
           <Button onClick={() => handleClearFile()}>Clear file</Button>
         </ButtonGroup>
         {/* Tip grid */}
-        <TipGrid rows={tipsArray} columns={columns} />
-        <section id='input' >
+        <TipGrid rows={tipsArray} columns={columns} deliveries={deliveryCount}/>
+        <section id='input' style={{ marginTop:'120px'}} >
           <FormControl fullWidth sx={{ m: 1 }}>
             <InputLabel htmlFor="outlined-input-cash">Cash</InputLabel>
             <OutlinedInput
@@ -110,7 +136,7 @@ const handleClearFile = () =>{
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
               label="Cash"
               type="number"
-              value={tipCash}
+              value={cashBuffer}
               onChange={handleCashChange}
             />
           </FormControl>
@@ -121,13 +147,13 @@ const handleClearFile = () =>{
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
               label="Credit"
               type="number"
-              value={tipCredit}
+              value={creditBuffer}
               onChange={handleCreditChange}
             />
           </FormControl>
         </section>
         <ButtonGroup aria-label="Basic button group">
-          <Button onClick={() => addTip(tipCash, tipCredit)}>Apply</Button>
+          <Button onClick={handleApplyClick}>Apply</Button>
           <Button onClick={() => removeTip(deliveryCount, tipsArray)}>Undo Last</Button>
         </ButtonGroup>
       </main>
